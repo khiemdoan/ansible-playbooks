@@ -32,8 +32,6 @@
       ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
       with_items:
         - { rule: 'limit', port: '{{ ssh_port | default("22") }}', proto: 'tcp' }
-        - { rule: 'allow', port: '80', proto: 'tcp' }
-        - { rule: 'allow', port: '443', proto: 'tcp' }
 
     - name: Enable ufw logging
       ufw: logging=on
@@ -43,3 +41,10 @@
 
     - name: Install htop
       apt: package=htop state=present
+
+    - name: Deny root from logging in
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^(#)?PermitRootLogin \w*$'
+        line: 'PermitRootLogin no'
+        state: present
