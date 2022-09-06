@@ -6,6 +6,11 @@
     apt: package=zsh,git state=latest update_cache=yes
     become: true
 
+  - name: set default shell
+    user:
+      name: '{{ ansible_user }}'
+      shell: /bin/zsh
+
   - name: Check if .zshrc exists
     stat:
       path: ~/.zshrc
