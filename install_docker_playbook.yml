@@ -36,9 +36,10 @@
     - name: Install docker
       apt: name={{ item }} state=latest update_cache=yes
       with_items:
-      - docker-ce
-      - docker-ce-cli
       - containerd.io
+      - docker-ce-cli
+      - docker-ce
+      - docker-compose-plugin
 
     - name: Make sure docker is active
       service: name=docker state=started enabled=yes
@@ -48,9 +49,6 @@
         name: "{{ ansible_user }}"
         groups: docker
         append: yes
-
-    - name: Install Docker Compose
-      apt: name=docker-compose-plugin
 
     - name: Install ctop
       get_url:
