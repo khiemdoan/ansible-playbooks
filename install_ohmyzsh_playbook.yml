@@ -2,7 +2,7 @@
 - name: Install oh-my-zsh
   hosts: all
   tasks:
-  - name: Installing Zsh and git
+  - name: Installing zsh and git
     apt: package=zsh,git state=latest update_cache=yes
     become: true
 
@@ -10,6 +10,7 @@
     user:
       name: '{{ ansible_user }}'
       shell: /bin/zsh
+    become: true
 
   - name: Check if .zshrc exists
     stat:
@@ -23,9 +24,19 @@
 
   - name: Cloning oh-my-zsh
     git:
-      repo=https://github.com/ohmyzsh/ohmyzsh
-      dest=~/.oh-my-zsh
+      repo: https://github.com/ohmyzsh/ohmyzsh
+      dest: ~/.oh-my-zsh
     when: not stat_oh_my_zsh_result.stat.exists
+
+  - name: Clone zsh-autosuggestions
+    git:
+      repo: https://github.com/zsh-users/zsh-autosuggestions
+      dest: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+
+  - name: Clone zsh-syntax-highlighting
+    git:
+      repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+      dest: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 
   - name: Creating new ~/.zshrc
     copy:
