@@ -3,9 +3,6 @@
   hosts: all
   become: yes
 
-  vars:
-    ctop_version: 0.7.7
-
   tasks:
     - name: Install dependency packages
       apt: name={{ item }} state=latest update_cache=yes
@@ -25,7 +22,7 @@
 
     - name: Add Ubuntu apt repository
       apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        repo: deb https://download.docker.com/linux/ubuntu jammy stable
       when: ansible_distribution == 'Ubuntu'
 
     - name: Add Debian apt repository
@@ -41,6 +38,22 @@
       - docker-ce
       - docker-compose-plugin
 
+    - block:
+      - name: Prepare content of daemon.json
+        set_fact:
+          docker_vars: {}
+      - name: Prepare content of daemon.json
+        set_fact:
+          docker_vars: "{{ docker_vars | combine({ item.key : item.value }) }}"
+        with_items:
+        - { key: "log-driver", value: "json-file" }
+        - { key: "log-opts", value: { "max-size": "10m", "max-file": "3" } }
+      - name: Write daemon.json
+        copy:
+          content: "{{ docker_vars | to_nice_json }}"
+          dest: /etc/docker/daemon.json
+          mode: u=rw,g=r,o=r
+
     - name: Make sure docker is active
       service: name=docker state=started enabled=yes
 
@@ -50,9 +63,9 @@
         groups: docker
         append: yes
 
-    - name: Install ctop
-      get_url:
-        url: https://github.com/bcicen/ctop/releases/download/v{{ctop_version}}/ctop-{{ctop_version}}-{{ansible_system|lower}}-amd64
-        dest: /usr/local/bin/ctop
-        mode: 0755
-        force: yes
+    - name: Auto clear docker
+      ansible.builtin.cron:
+        name: Auto clear docker
+        special_time: daily
+        user: root
+        job: docker system prune -f
