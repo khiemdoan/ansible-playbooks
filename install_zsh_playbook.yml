@@ -1,0 +1,19 @@
+---
+- name: Install zsh
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Installing curl, git and zsh
+      apt:
+        name: '{{ item }}'
+        state: latest
+      loop:
+        - curl
+        - git
+        - zsh
+
+    - name: set default shell
+      user:
+        name: '{{ ansible_user }}'
+        shell: /bin/zsh
