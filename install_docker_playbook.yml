@@ -69,4 +69,4 @@
         name: Auto clear docker
         special_time: daily
         user: root
-        job: docker system prune -f
+        job: docker system prune --all --force
