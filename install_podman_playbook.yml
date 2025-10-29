@@ -1,0 +1,16 @@
+---
+- name: Install podman
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install podman
+      ansible.builtin.package:
+        name: podman
+        state: latest
+
+    - name: Enable linger for {{ ansible_user }} user
+      ansible.builtin.command: loginctl enable-linger {{ ansible_user }}
+
+    - name: Reboot server
+      ansible.builtin.reboot:
